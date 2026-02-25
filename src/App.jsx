@@ -2,6 +2,9 @@ import React, { Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import CssBaseline from "@mui/material/CssBaseline";
 import Layout from "./components/layout/Layout";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import PublicRoute from "./routes/PublicRoute";
+
 
 // Lazy Loaded Pages
 const Login = React.lazy(() => import("./features/auth/pages/Login"));
@@ -30,18 +33,25 @@ export default function App() {
 
       <Routes>
 
-        {/* Public Route (NO Layout) */}
-        <Route path="/login" element={<Login />} />
+        {/* Public Route */}
+        <Route path="/login" element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+         }
+           />
 
-        {/* Protected / App Routes (WITH Layout) */}
-        <Route element={<Layout />}>
-          <Route path="/" element={<UploadPage />} />
-          <Route path="/upload" element={<UploadPage />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/reports" element={<ReportsPage />} />
+
+         {/* Protected Routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<Layout />}>
+            <Route path="/" element={<UploadPage />} />
+            <Route path="/upload" element={<UploadPage />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/reports" element={<ReportsPage />} />
+          </Route>
         </Route>
 
-        {/* 404 Route */}
         <Route path="*" element={<div>Page Not Found</div>} />
         
       </Routes>

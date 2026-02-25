@@ -1,4 +1,6 @@
 // src/components/layout/Topbar.jsx
+import { useNavigate } from "react-router-dom";
+import { logoutUser } from "../../features/auth/api/authApi";
 import React, { useState } from "react";
 import {
   AppBar,
@@ -23,6 +25,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { useLocation } from "react-router-dom";
 
 export default function Topbar({ open, handleToggle }) {
+  const navigate = useNavigate();
   const theme = useTheme();
   const location = useLocation();
 
@@ -34,6 +37,16 @@ export default function Topbar({ open, handleToggle }) {
   const [anchorAvatar, setAnchorAvatar] = useState(null);
   const openAvatar = Boolean(anchorAvatar);
 
+
+   const handleLogout = async () => {
+    try {
+      await logoutUser();      // calls API and clears localStorage
+      navigate("/login");      // redirect to login page
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   // Handlers
   const handleNotifOpen = (event) => setAnchorNotif(event.currentTarget);
   const handleNotifClose = () => setAnchorNotif(null);
@@ -43,6 +56,9 @@ export default function Topbar({ open, handleToggle }) {
 
   const pageTitle =
     location.pathname.replace("/", "").toUpperCase() || "DASHBOARD";
+
+  const storedUser = localStorage.getItem("authUser");
+  const user = storedUser ? JSON.parse(storedUser) : null;
 
   return (
     <AppBar
@@ -128,38 +144,26 @@ export default function Topbar({ open, handleToggle }) {
           }}
         >
           {/* Profile Info */}
-          <Box sx={{ px: 2, py: 1 }}>
-            <Typography fontWeight={600}>John Doe</Typography>
-            <Typography variant="body2" color="text.secondary">
-              📧 john@gmail.com
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              📞 +880 1234-567890
-            </Typography>
-          </Box>
+       <Box sx={{ px: 2, py: 1 }}>
+          <Typography fontWeight={600}>
+            {user?.full_name || "User"}
+          </Typography>
+
+          <Typography variant="body2" color="text.secondary">
+            📧 {user?.email || "No email"}
+          </Typography>
+        </Box>
+
 
           <Divider />
 
-          {/* Profile */}
-          <MenuItem>
-            <ListItemIcon>
-              <AccountCircleIcon fontSize="small" />
-            </ListItemIcon>
-            Profile
-          </MenuItem>
+      
+     
 
-          {/* Settings */}
-          <MenuItem>
-            <ListItemIcon>
-              <SettingsIcon fontSize="small" />
-            </ListItemIcon>
-            Settings
-          </MenuItem>
+  
 
-          <Divider />
-
-          {/* Logout */}
-          <MenuItem sx={{ color: "red" }}>
+       {/* Logout */}
+          <MenuItem sx={{ color: "red" }} onClick={handleLogout}>
             <ListItemIcon>
               <LogoutIcon fontSize="small" sx={{ color: "red" }} />
             </ListItemIcon>
