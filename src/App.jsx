@@ -4,7 +4,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Layout from "./components/layout/Layout";
 
 // Lazy Loaded Pages
-const Dashboard = React.lazy(() => import("./pages/Dashboard"));
+const Login = React.lazy(() => import("./features/auth/pages/Login"));
 const UploadPage = React.lazy(() => import("./features/upload/pages/UploadPage"));
 const Settings = React.lazy(() => import("./features/settings/pages/Settings"));
 const ReportsPage = React.lazy(() => import("./features/reports/pages/ReportsPage"));
@@ -29,9 +29,12 @@ export default function App() {
       <CssBaseline />
 
       <Routes>
-        {/* Layout Wrapped Routes */}
+
+        {/* Public Route (NO Layout) */}
+        <Route path="/login" element={<Login />} />
+
+        {/* Protected / App Routes (WITH Layout) */}
         <Route element={<Layout />}>
-          {/* <Route path="/" element={<Dashboard />} /> */}
           <Route path="/" element={<UploadPage />} />
           <Route path="/upload" element={<UploadPage />} />
           <Route path="/settings" element={<Settings />} />
@@ -40,6 +43,7 @@ export default function App() {
 
         {/* 404 Route */}
         <Route path="*" element={<div>Page Not Found</div>} />
+        
       </Routes>
     </Suspense>
   );

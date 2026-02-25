@@ -294,27 +294,32 @@ const mockTransactions = Array(10)
   .fill()
   .map((_, index) => ({
     id: index + 1,
-    transactionNumber: "DBI78EZH5N",
-    accountNumber: "8801960464133",
+    trxId: "DBI78EZH5N",
+    senderWallet: "8801960464133",
+    userId: "2",
+    entity: "Race",
     date: "2026-02-18",
     amount: "600.00",
     channel: index % 2 === 0 ? "bKash Paybill" : "Nagad Paybill",
     wallet: index % 2 === 0 ? "0171XX" : "0176YY",
-    status: index % 3 === 0 ? "Issue" : "Amount Mismatch",
-    ownDb: false,
-    sp: true,
+    status: index % 2 === 0 ? "Matched" : "Mismatched",
+
+    ownDb: true,
+    vendor: true,
   }));
 
 const columns = [
-  { id: "transactionNumber", label: "Transaction Number", sortable: true },
-  { id: "accountNumber", label: "Account Number", sortable: true },
+  { id: "trxId", label: "Transaction ID", sortable: true },
+  { id: "senderWallet", label: "Sender Wallet", sortable: true },
+  { id: "userId", label: "User ID", sortable: true },
+  { id: "entity", label: "Entity", sortable: true },
   { id: "date", label: "Date", sortable: true },
   { id: "amount", label: "Amount", sortable: true },
   { id: "channel", label: "Channel", sortable: true },
   { id: "wallet", label: "Wallet", sortable: true },
   { id: "status", label: "Status" },
   { id: "ownDb", label: "Own DB" },
-  { id: "sp", label: "SP" },
+  { id: "vendor", label: "Vendor" },
 ];
 
 const EMPTY_FILTERS = {
@@ -346,22 +351,39 @@ export default function TransactionReportModal({ open, onClose }) {
   };
 
   // =================== FORMATTED ROWS ===================
-  const formattedRows = useMemo(
-    () =>
-      mockTransactions.map((row) => ({
+const formattedRows = useMemo(
+  () =>
+    mockTransactions.map((row) => {
+      const isMatched = row.status === "Matched";
+
+      return {
         ...row,
         status: (
           <Chip
             label={row.status}
             size="small"
-            sx={{ bgcolor: "#fed7d7", color: "#c53030", fontWeight: 700, borderRadius: 1.5 }}
+            sx={{
+              bgcolor: isMatched ? "#C6F6D5" : "#FED7D7",
+              color: isMatched ? "#2F855A" : "#C53030",
+              fontWeight: 700,
+              borderRadius: 1.5,
+            }}
           />
         ),
-        ownDb: row.ownDb ? <CheckIcon fontSize="small" color="success" /> : <CrossIcon fontSize="small" sx={{ color: "#e53e3e" }} />,
-        sp: row.sp ? <CheckIcon fontSize="small" sx={{ color: "#38a169" }} /> : <CrossIcon fontSize="small" color="error" />,
-      })),
-    []
-  );
+        ownDb: row.ownDb ? (
+          <CheckIcon fontSize="small" color="success" />
+        ) : (
+          <CrossIcon fontSize="small" sx={{ color: "#e53e3e" }} />
+        ),
+        vendor: row.vendor ? (
+          <CheckIcon fontSize="small" sx={{ color: "#38a169" }} />
+        ) : (
+          <CrossIcon fontSize="small" color="error" />
+        ),
+      };
+    }),
+  []
+);
 
   // =================== FILTERED ROWS ===================
   const filteredRows = useMemo(
