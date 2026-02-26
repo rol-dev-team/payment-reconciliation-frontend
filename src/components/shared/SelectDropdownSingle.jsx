@@ -71,34 +71,61 @@ export default function SelectDropdownSingle({
         ...sx,
       }}
       renderInput={params => (
-        <TextField
-          {...params}
-          label={selectedOption ? placeholder : ''} // show placeholder as floating label when selected
-          placeholder={!selectedOption ? placeholder : ''} // dynamic placeholder when empty
-          size="small"
-          error={Boolean(meta.touched && meta.error)}
-          helperText={meta.touched && meta.error ? meta.error : ''}
-          InputLabelProps={{
-            shrink: Boolean(selectedOption || params.inputProps.value),
-          }}
-          FormHelperTextProps={{ sx: { margin: 0, height: meta.error ? 'auto' : 0 } }}
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: (
-              <>
-                {loading && <CircularProgress color="inherit" size={16} />}
-                {params.InputProps.endAdornment}
-              </>
-            ),
-            sx: {
-              minHeight: height,
-              borderRadius,
-              fontSize,
-              backgroundColor: '#fff',
-              borderColor,
+       <TextField
+        {...params}
+        label={selectedOption ? placeholder : ''}
+        placeholder={!selectedOption ? placeholder : ''}
+        size="small"
+        error={Boolean(meta.touched && meta.error)}
+        helperText={meta.touched && meta.error ? meta.error : ''}
+        InputLabelProps={{
+          shrink: Boolean(selectedOption || params.inputProps.value),
+        }}
+        FormHelperTextProps={{
+          sx: { margin: 0, height: meta.error ? 'auto' : 0 },
+        }}
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            "& fieldset": {
+              borderColor: "#e2e8f0",
             },
-          }}
-        />
+            "&:hover fieldset": {
+              borderColor: "rgb(152, 193, 86)",
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "rgb(152, 193, 86)",
+              borderWidth: 2,
+            },
+          },
+         // Default label color
+          "& .MuiInputLabel-root": {
+            color:
+              selectedOption || params.inputProps.value
+                ? "rgb(152, 193, 86)"
+                : "#64748b",
+          },
+           // Focused label
+              "& .MuiInputLabel-root.Mui-focused": {
+                color: "rgb(152, 193, 86)",
+              },
+            }}
+        InputProps={{
+          ...params.InputProps,
+          endAdornment: (
+            <>
+              {loading && <CircularProgress color="inherit" size={16} />}
+              {params.InputProps.endAdornment}
+            </>
+          ),
+          sx: {
+            minHeight: height,
+            borderRadius,
+            fontSize,
+            backgroundColor: '#fff',
+          },
+        }}
+      />
+
       )}
     />
   );

@@ -106,13 +106,20 @@ export default function DateRangePickerPopover({ value, onChange, onApply, onRes
               fontSize: "0.75rem",
               fontWeight: activeShortcut === s.label ? 700 : 500,
               color: activeShortcut === s.label ? "#fff" : "#475569",
-              bgcolor: activeShortcut === s.label ? "#3b82f6" : "transparent",
+              bgcolor: activeShortcut === s.label ?"rgb(152, 193, 86)": "transparent",
               borderRadius: 1.5,
               px: 1,
               py: 0.5,
               minWidth: 0,
+              transition: "all 0.2s ease",
               "&:hover": {
-                bgcolor: activeShortcut === s.label ? "#2563eb" : "#f1f5f9",
+                bgcolor: activeShortcut === s.label ? "rgba(152, 193, 86, 0.85)" : "#f1f5f9",
+              },
+              "&:focus": {
+                bgcolor: activeShortcut === s.label ? "rgba(152, 193, 86, 0.85)" : "#e5f0d5",
+              },
+              "&.Mui-active": {
+                bgcolor: "rgb(152, 193, 86)",
               },
             }}
           >
@@ -175,10 +182,10 @@ export default function DateRangePickerPopover({ value, onChange, onApply, onRes
               bottom: "3px",
             },
             "& .rdrDayToday .rdrDayNumber span:after": {
-              background: "#3b82f6",
+              background: "rgb(152, 193, 86)",
             },
             "& .rdrSelected, & .rdrInRange, & .rdrStartEdge, & .rdrEndEdge": {
-              background: "#3b82f6",
+             background: "rgb(152, 193, 86)",
             },
             "& .rdrDay:not(.rdrDayPassive) .rdrInRange ~ .rdrDayNumber span, & .rdrDay:not(.rdrDayPassive) .rdrStartEdge ~ .rdrDayNumber span, & .rdrDay:not(.rdrDayPassive) .rdrEndEdge ~ .rdrDayNumber span":
               { color: "#fff" },
@@ -222,7 +229,7 @@ export default function DateRangePickerPopover({ value, onChange, onApply, onRes
             size="small"
             variant="contained"
             onClick={onApply}
-            sx={{ bgcolor: "#3b82f6", textTransform: "none", fontSize: "0.75rem", py: 0.25, "&:hover": { bgcolor: "#2563eb" } }}
+            sx={{ bgcolor:  "rgb(152, 193, 86)",textTransform: "none", fontSize: "0.75rem", py: 0.25, "&:hover": { bgcolor: "rgba(152, 193, 86, 0.85)" } }}
           >
             Apply
           </Button>

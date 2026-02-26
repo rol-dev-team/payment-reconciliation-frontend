@@ -16,6 +16,8 @@ import {
   Avatar,
   ListItemIcon,
 } from "@mui/material";
+import PersonIcon from "@mui/icons-material/Person";
+
 import FormatIndentDecreaseIcon from "@mui/icons-material/FormatIndentDecrease";
 import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsIcon from "@mui/icons-material/Notifications";
@@ -122,12 +124,15 @@ export default function Topbar({ open, handleToggle }) {
         </Menu>
 
         {/* 👤 Avatar */}
-        <IconButton
+     <IconButton
           onClick={handleAvatarOpen}
           sx={{ ml: 1, "&:focus": { outline: "none", boxShadow: "none" } }}
         >
-          <Avatar sx={{ bgcolor: "#2563eb", width: 36, height: 36 }}>U</Avatar>
+          <Avatar sx={{ bgcolor:  "grey.500", width: 36, height: 36 }}>
+            <PersonIcon sx={{ fontSize: 20 }} />
+          </Avatar>
         </IconButton>
+
 
         {/* Avatar Dropdown */}
         <Menu
