@@ -1,71 +1,39 @@
-import React, { useState } from "react";
-import {
-  Card,
-  CardContent,
-  Typography,
-  Stack,
-  Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  IconButton,
-} from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, Typography, Stack, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/DeleteOutline";
-import { format } from "date-fns";
 import * as XLSX from "xlsx";
 
 import SelectDropdownSingle from "../../../components/shared/SelectDropdownSingle";
 import UploadButton from "../../../components/shared/UploadButton";
+import { fetchChannels, fetchWallets } from "../api/uploadApi";
 
-export default function ServiceUploadSection({
-  values,
-  channelOptions,
-  walletOptions,
-  serviceFiles,
-  onUpload,
-  onDelete,
-}) {
+export default function ServiceUploadSection({ values, onUpload, onDelete }) {
+  const [channelOptions, setChannelOptions] = useState([]);
+  const [walletOptions, setWalletOptions] = useState([]);
   const [tempFiles, setTempFiles] = useState([]);
 
-  // =========================
-  // FILE UPLOAD HANDLER
-  // =========================
+  // Load channels once on mount
+  useEffect(() => {
+    fetchChannels().then(setChannelOptions).catch(console.error);
+  }, []);
+
+  // Filter wallets by selected channel
+  useEffect(() => {
+    if (!values.channel) {
+      setWalletOptions([]);
+      return;
+    }
+    fetchWallets()
+      .then((all) => all.filter((w) => w.channelId === values.channel))
+      .then(setWalletOptions)
+      .catch(console.error);
+  }, [values.channel]);
+
   const handleFileChange = (files) => {
-    const selectedChannel =
-      channelOptions.find((opt) => opt.value === values.channel)?.label || "N/A";
-    const selectedWallet =
-      walletOptions.find((opt) => opt.value === values.wallet)?.label || "N/A";
+    const selectedChannel = channelOptions.find((c) => c.id === values.channel)?.label || "N/A";
+    const selectedWallet = walletOptions.find((w) => w.id === values.wallet)?.label || "N/A";
 
-    const newFiles = files.map((file) => {
-      let transactionCount = 0;
-
-      // Read CSV or Excel
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const data = e.target.result;
-
-        if (/\.csv$/i.test(file.name)) {
-          const lines = data.split(/\r\n|\n/);
-          transactionCount = lines.length > 1 ? lines.length - 1 : 0; // exclude header
-        } else if (/\.(xls|xlsx)$/i.test(file.name)) {
-          const workbook = XLSX.read(data, { type: "array" });
-          const sheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[sheetName];
-          const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-          transactionCount = json.length > 1 ? json.length - 1 : 0; // exclude header
-        }
-
-        setTempFiles((prev) =>
-          prev.map((f) =>
-            f.id === tempFile.id ? { ...f, transactions: transactionCount } : f
-          )
-        );
-      };
-
+    files.forEach((file) => {
       const tempFile = {
         id: Date.now() + Math.random(),
         name: file.name,
@@ -75,15 +43,31 @@ export default function ServiceUploadSection({
         transactions: 0,
       };
 
-      setTempFiles((prev) => [...prev, tempFile]);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = e.target.result;
+        let transactionCount = 0;
 
-      // Call parent upload
+        if (/\.csv$/i.test(file.name)) {
+          const lines = data.split(/\r\n|\n/);
+          transactionCount = lines.length > 1 ? lines.length - 1 : 0;
+        } else if (/\.(xls|xlsx)$/i.test(file.name)) {
+          const workbook = XLSX.read(data, { type: "array" });
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+          transactionCount = json.length > 1 ? json.length - 1 : 0;
+        }
+
+        setTempFiles((prev) =>
+          prev.map((f) => (f.id === tempFile.id ? { ...f, transactions: transactionCount } : f))
+        );
+      };
+
+      setTempFiles((prev) => [...prev, tempFile]);
       onUpload(file, { channel: values.channel, wallet: values.wallet });
 
       if (/\.csv$/i.test(file.name)) reader.readAsText(file);
       else reader.readAsArrayBuffer(file);
-
-      return tempFile;
     });
   };
 
@@ -92,18 +76,13 @@ export default function ServiceUploadSection({
     onDelete(id);
   };
 
-  // =========================
-  // RENDER
-  // =========================
   return (
     <Card variant="outlined" sx={{ mb: 3 }}>
       <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
-        {/* HEADER */}
         <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>
           Select Service Provider
         </Typography>
 
-        {/* INPUTS + UPLOAD */}
         <Stack
           direction={{ xs: "column", sm: "row" }}
           spacing={2}
@@ -124,6 +103,7 @@ export default function ServiceUploadSection({
               placeholder="Select Wallet"
               fetchOptions={async () => walletOptions}
               height={42}
+              disabled={!values.channel}
             />
           </Box>
 
@@ -138,16 +118,10 @@ export default function ServiceUploadSection({
           </Box>
         </Stack>
 
-        {/* TEMPORARY FILE TABLE */}
         {tempFiles.length > 0 && (
           <TableContainer
             component={Paper}
-            sx={{
-              mt: 4,
-              border: "1px solid #e2e8f0",
-              boxShadow: "none",
-              overflowX: "auto",
-            }}
+            sx={{ mt: 4, border: "1px solid #e2e8f0", boxShadow: "none", overflowX: "auto" }}
           >
             <Table size="small">
               <TableHead sx={{ bgcolor: "#f8fafc" }}>
@@ -156,24 +130,18 @@ export default function ServiceUploadSection({
                   <TableCell sx={{ fontWeight: 600 }}>Channel</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Wallet</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Transactions</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 600 }}>
-                    Action
-                  </TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 600 }}>Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {tempFiles.map((file) => (
-                  <TableRow key={file.id} hover>
-                    <TableCell sx={{ wordBreak: "break-word" }}>{file.name}</TableCell>
-                    <TableCell sx={{ wordBreak: "break-word" }}>{file.channel}</TableCell>
-                    <TableCell sx={{ wordBreak: "break-word" }}>{file.wallet}</TableCell>
-                    <TableCell sx={{ wordBreak: "break-word" }}>{file.transactions}</TableCell>
+                {tempFiles.map((f) => (
+                  <TableRow key={f.id} hover>
+                    <TableCell sx={{ wordBreak: "break-word" }}>{f.name}</TableCell>
+                    <TableCell sx={{ wordBreak: "break-word" }}>{f.channel}</TableCell>
+                    <TableCell sx={{ wordBreak: "break-word" }}>{f.wallet}</TableCell>
+                    <TableCell>{f.transactions}</TableCell>
                     <TableCell align="right">
-                      <IconButton
-                        color="error"
-                        size="small"
-                        onClick={() => handleDeleteTempFile(file.id)}
-                      >
+                      <IconButton color="error" size="small" onClick={() => handleDeleteTempFile(f.id)}>
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
