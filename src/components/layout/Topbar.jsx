@@ -151,11 +151,7 @@ export default function Topbar({ open, handleToggle }) {
           {/* Profile Info */}
        <Box sx={{ px: 2, py: 1 }}>
           <Typography fontWeight={600}>
-            {user?.full_name || "User"}
-          </Typography>
-
-          <Typography variant="body2" color="text.secondary">
-            📧 {user?.email || "No email"}
+            {user?.name || "User"}
           </Typography>
         </Box>
 

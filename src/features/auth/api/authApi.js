@@ -1,4 +1,3 @@
-// src/features/auth/api/authApi.js
 import api from '../../../api/axios';
 
 /**
@@ -9,12 +8,17 @@ import api from '../../../api/axios';
 export const loginUser = async (credentials) => {
   try {
     const response = await api.post('/login', credentials);
+
     // Save token and user data in localStorage
     localStorage.setItem('authToken', response.data.token);
     localStorage.setItem('authUser', JSON.stringify(response.data.user));
-    return response.data;
+
+    return {
+      token: response.data.token,
+      user: response.data.user,
+    };
   } catch (error) {
-    throw error.response?.data || { message: 'Login failed' };
+    throw error.response?.data || { message: error.message || 'Login failed' };
   }
 };
 
@@ -25,12 +29,14 @@ export const loginUser = async (credentials) => {
 export const logoutUser = async () => {
   try {
     const response = await api.post('/logout');
+
     // Remove token and user from localStorage
     localStorage.removeItem('authToken');
     localStorage.removeItem('authUser');
+
     return response.data;
   } catch (error) {
-    throw error.response?.data || { message: 'Logout failed' };
+    throw error.response?.data || { message: error.message || 'Logout failed' };
   }
 };
 

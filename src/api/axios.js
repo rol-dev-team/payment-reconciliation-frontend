@@ -1,15 +1,17 @@
-import axios from "axios";
+// src/api/axios.js
+import axios from 'axios';
 
-// Create an Axios instance
-const api = axios.create({
-  baseURL: "http://localhost:8000/api",
+const axiosInstance = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api',
+  timeout: 10000,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
   },
 });
 
 // Request interceptor to attach token
-api.interceptors.request.use(
+axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("authToken");
     if (token) {
@@ -20,8 +22,8 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Optional: Response interceptor to handle 401 errors globally
-api.interceptors.response.use(
+// Response interceptor to handle 401 errors globally
+axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
@@ -34,4 +36,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+export default axiosInstance; // export the instance itself

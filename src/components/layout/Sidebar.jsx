@@ -5,7 +5,7 @@ import React from "react";
 import { Drawer, List, ListItemButton, ListItemIcon, ListItemText, Toolbar, useTheme, Box } from "@mui/material";
 import { FileUploadOutlined as UploadIcon, AssessmentOutlined as ResultsIcon, SettingsOutlined as SettingsIcon } from "@mui/icons-material";
 import { Link, useLocation } from "react-router-dom";
-
+import { Stack, Typography } from '@mui/material';
 // 1. Import Logo here
 import LogoImg from '../../assets/orbit.png';
 
@@ -112,8 +112,9 @@ export default function Sidebar({ open }) {
 
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between', pb: 2 }}>
         <Box>{renderList(menuItems)}</Box>
-        <Box>{renderList(bottomMenuItems)}</Box>
-      </Box>
+        {/* <Box>{renderList(bottomMenuItems)}</Box> */}
+     
+        </Box>
     </Drawer>
   );
 }
