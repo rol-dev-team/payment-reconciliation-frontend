@@ -64,7 +64,7 @@ export default function ServiceUploadSection({ values, onUpload, onDelete }) {
       };
 
       setTempFiles((prev) => [...prev, tempFile]);
-      onUpload(file, { channel: values.channel, wallet: values.wallet });
+      onUpload(file, { channel: values.channel, wallet: values.wallet }, tempFile.id);
 
       if (/\.csv$/i.test(file.name)) reader.readAsText(file);
       else reader.readAsArrayBuffer(file);

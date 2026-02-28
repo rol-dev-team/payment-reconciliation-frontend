@@ -52,7 +52,7 @@ export default function OwnDatabaseUpload({ values, onUpload, onDelete }) {
       };
 
       setFilesList((prev) => [...prev, tempFile]);
-      onUpload(file, { billingSystemId: values.billingSystem });
+      onUpload(file, { billingSystemId: values.billingSystem }, tempFile.id);
 
       if (/\.csv$/i.test(file.name)) reader.readAsText(file);
       else reader.readAsArrayBuffer(file);
