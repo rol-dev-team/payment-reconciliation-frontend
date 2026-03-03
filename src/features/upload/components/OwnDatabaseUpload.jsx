@@ -1,3 +1,4 @@
+// src/features/upload/components/OwnDatabaseUpload.jsx
 import React, { useState, useEffect } from 'react';
 import {
   Card, CardContent, Typography, Stack, Box, IconButton,
@@ -5,7 +6,6 @@ import {
   TableHead, TableRow, Paper,
 } from '@mui/material';
 import * as XLSX from "xlsx";
-import CloudIcon from '@mui/icons-material/CloudUploadOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import SelectDropdownSingle from '../../../components/shared/SelectDropdownSingle';
 import UploadButton from '../../../components/shared/UploadButton';
@@ -15,6 +15,7 @@ export default function OwnDatabaseUpload({ values, onUpload, onDelete }) {
   const [billingOptions, setBillingOptions] = useState([]);
   const [filesList, setFilesList] = useState([]);
 
+  // Load billing systems on mount
   useEffect(() => {
     fetchBillingSystem().then(setBillingOptions).catch(console.error);
   }, []);
@@ -68,10 +69,9 @@ export default function OwnDatabaseUpload({ values, onUpload, onDelete }) {
     <Card variant="outlined" sx={{ mb: 4, borderRadius: 3 }}>
       <CardContent sx={{ py: { xs: 3, sm: 4 }, px: { xs: 2, sm: 3 } }}>
         <Typography
-          variant="h6"
-          sx={{ fontWeight: 700, mb: { xs: 2, sm: 3 }, fontSize: { xs: '1rem', sm: '1.25rem' } }}
+          variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}
         >
-          Upload payment file from billing panel
+          Billing System
         </Typography>
 
         <Stack
@@ -82,6 +82,7 @@ export default function OwnDatabaseUpload({ values, onUpload, onDelete }) {
         >
           <Box sx={{ flex: 1 }}>
             <SelectDropdownSingle
+              required
               name="billingSystem"
               placeholder="Select Billing System"
               fetchOptions={async () => billingOptions}
@@ -97,11 +98,13 @@ export default function OwnDatabaseUpload({ values, onUpload, onDelete }) {
               color="#217346"
               hoverColor="#185C37"
               minWidth={160}
+              // ADDED VALIDATION HERE: Button is disabled if no billing system selected
+              disabled={!values.billingSystem}
             />
           </Box>
         </Stack>
 
-        {filesList.length > 0 ? (
+        {filesList.length > 0 && (
           <TableContainer
             component={Paper}
             variant="outlined"
@@ -132,22 +135,6 @@ export default function OwnDatabaseUpload({ values, onUpload, onDelete }) {
               </TableBody>
             </Table>
           </TableContainer>
-        ) : (
-          <Box
-            sx={{
-              mt: 2,
-              py: { xs: 4, sm: 6 },
-              textAlign: 'center',
-              border: '2px dashed #cbd5e1',
-              borderRadius: 2,
-              backgroundColor: '#f8fafc',
-            }}
-          >
-            <CloudIcon sx={{ fontSize: { xs: 36, sm: 48 }, color: '#94a3b8', mb: 1 }} />
-            <Typography variant="body2" fontWeight={500} color="textSecondary">
-              No files uploaded yet
-            </Typography>
-          </Box>
         )}
       </CardContent>
     </Card>

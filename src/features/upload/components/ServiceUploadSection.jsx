@@ -1,3 +1,4 @@
+// src/features/upload/components/ServiceUploadSection.jsx
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, Typography, Stack, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/DeleteOutline";
@@ -80,7 +81,7 @@ export default function ServiceUploadSection({ values, onUpload, onDelete }) {
     <Card variant="outlined" sx={{ mb: 3 }}>
       <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
         <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>
-          Select Service Provider
+          Payment Gateway
         </Typography>
 
         <Stack
@@ -90,6 +91,7 @@ export default function ServiceUploadSection({ values, onUpload, onDelete }) {
         >
           <Box sx={{ flex: 1 }}>
             <SelectDropdownSingle
+              required
               name="channel"
               placeholder="Select Channel"
               fetchOptions={async () => channelOptions}
@@ -99,6 +101,7 @@ export default function ServiceUploadSection({ values, onUpload, onDelete }) {
 
           <Box sx={{ flex: 1 }}>
             <SelectDropdownSingle
+              required
               name="wallet"
               placeholder="Select Wallet"
               fetchOptions={async () => walletOptions}
@@ -114,6 +117,8 @@ export default function ServiceUploadSection({ values, onUpload, onDelete }) {
               onUpload={handleFileChange}
               color="#217346"
               hoverColor="#185C37"
+              // ADDED VALIDATION HERE: Button is disabled if channel or wallet is missing
+              disabled={!values.channel || !values.wallet}
             />
           </Box>
         </Stack>

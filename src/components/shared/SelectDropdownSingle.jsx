@@ -5,7 +5,7 @@ import { Autocomplete, TextField, CircularProgress, Skeleton } from '@mui/materi
 
 export default function SelectDropdownSingle({
   name,
-  placeholder = 'Select Item', // fully dynamic placeholder
+  placeholder = 'Select Item',
   fetchOptions,
   disabled = false,
   searchable = true,
@@ -16,6 +16,7 @@ export default function SelectDropdownSingle({
   borderRadius = 1.5,
   borderColor = '#e2e8f0',
   activeBorderColor = '#3182ce',
+  required = false, // 1. Added required prop here
   sx = {},
 }) {
   const { setFieldValue } = useFormikContext();
@@ -23,7 +24,6 @@ export default function SelectDropdownSingle({
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Load options async
   useEffect(() => {
     let mounted = true;
     const loadOptions = async () => {
@@ -66,26 +66,36 @@ export default function SelectDropdownSingle({
       getOptionLabel={option => option.label || ''}
       onChange={(_, newValue) => setFieldValue(name, newValue ? newValue.id : '')}
       sx={{
-        width: '100%', // responsive full width
+        width: '100%',
         fontSize,
         ...sx,
       }}
       renderInput={params => (
        <TextField
         {...params}
-        label={selectedOption ? placeholder : ''}
-        placeholder={!selectedOption ? placeholder : ''}
+        required={required} // 2. Pass required to TextField
+        // Improved label logic: show placeholder as label when item is selected OR field is focused
+        label={placeholder} 
         size="small"
         error={Boolean(meta.touched && meta.error)}
         helperText={meta.touched && meta.error ? meta.error : ''}
         InputLabelProps={{
-          shrink: Boolean(selectedOption || params.inputProps.value),
+          shrink: Boolean(selectedOption || params.inputProps.value || params.focused),
+          sx: {
+            fontSize,
+            top: '2px', // Matches your DateRange layout
+            // 3. Make asterisk red
+            "& .MuiFormLabel-asterisk": {
+              color: "red",
+            },
+          }
         }}
         FormHelperTextProps={{
           sx: { margin: 0, height: meta.error ? 'auto' : 0 },
         }}
         sx={{
           "& .MuiOutlinedInput-root": {
+            height: height, // Use the height prop correctly
             "& fieldset": {
               borderColor: "#e2e8f0",
             },
@@ -97,18 +107,17 @@ export default function SelectDropdownSingle({
               borderWidth: 2,
             },
           },
-         // Default label color
           "& .MuiInputLabel-root": {
+            fontSize,
             color:
               selectedOption || params.inputProps.value
                 ? "rgb(152, 193, 86)"
                 : "#64748b",
           },
-           // Focused label
-              "& .MuiInputLabel-root.Mui-focused": {
-                color: "rgb(152, 193, 86)",
-              },
-            }}
+          "& .MuiInputLabel-root.Mui-focused": {
+            color: "rgb(152, 193, 86)",
+          },
+        }}
         InputProps={{
           ...params.InputProps,
           endAdornment: (
@@ -122,10 +131,12 @@ export default function SelectDropdownSingle({
             borderRadius,
             fontSize,
             backgroundColor: '#fff',
+            "& input": {
+                py: 0, // Ensure vertical centering for 42px height
+            }
           },
         }}
       />
-
       )}
     />
   );
