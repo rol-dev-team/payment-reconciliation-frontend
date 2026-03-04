@@ -9,12 +9,16 @@ export const fetchReconciliationSummary = (startDate, endDate) => {
   });
 };
 
-export const fetchComparisonDetails = (batchId, processNo, params = {}) => {
+export const fetchComparisonDetails = (batchId, processNo, page = 1, perPage = 50, filters = {}) => {
   return api.get("/comparisons", {
     params: {
       batch_id: batchId,
       process_no: processNo,
-      ...params,
+      page,
+      per_page: perPage,
+      ...(filters.status && { status: filters.status }),
+      ...(filters.channel_id && { channel_id: filters.channel_id }),
+      ...(filters.wallet_id && { wallet_id: filters.wallet_id }),
     },
   });
 };

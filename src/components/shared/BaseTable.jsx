@@ -152,13 +152,23 @@ export default function BaseTable({
   onFilter,
   onExport,
   filterContent = null,
+    totalRows = null,
+  page: externalPage = null,
+  rowsPerPage: externalRowsPerPage = null,
+  onPageChange = null,
+  onRowsPerPageChange = null,
 }) {
-  const [order, setOrder] = React.useState("asc");
-  const [orderBy, setOrderBy] = React.useState(columns[0]?.id || "");
-  const [selected, setSelected] = React.useState([]);
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+    const [order, setOrder] = React.useState("asc");
+    const [orderBy, setOrderBy] = React.useState(columns[0]?.id || "");
+    const [selected, setSelected] = React.useState([]);
+    const [internalPage, setInternalPage] = React.useState(0);
+    const [internalRowsPerPage, setInternalRowsPerPage] = React.useState(10);
 
+    const isServerSide = totalRows !== null && externalPage !== null;
+
+    const page = isServerSide ? externalPage : internalPage;
+    const rowsPerPage = isServerSide ? externalRowsPerPage : internalRowsPerPage;
+    const count = isServerSide ? totalRows : rows.length;
   // ✅ Always dense
   const dense = true;
 
@@ -193,12 +203,14 @@ export default function BaseTable({
   }, [columns]);
 
   const visibleRows = React.useMemo(
-    () =>
-      [...rows]
-        .sort(getComparator(order, orderBy))
-        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [order, orderBy, page, rowsPerPage, rows]
-  );
+      () =>
+        isServerSide
+          ? [...rows].sort(getComparator(order, orderBy)) // already paginated from server
+          : [...rows]
+              .sort(getComparator(order, orderBy))
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+      [order, orderBy, page, rowsPerPage, rows, isServerSide]
+    );
 
   return (
     <Box sx={{ width: "100%", mt: 2 }}>
@@ -283,15 +295,19 @@ export default function BaseTable({
 
         <Divider />
 
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={(e, p) => setPage(p)}
-          onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
-        />
+     <TablePagination
+        rowsPerPageOptions={[25, 50, 100]}
+        component="div"
+        count={count}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={isServerSide ? onPageChange : (e, p) => setInternalPage(p)}
+        onRowsPerPageChange={
+          isServerSide
+            ? onRowsPerPageChange
+            : (e) => { setInternalRowsPerPage(parseInt(e.target.value, 10)); setInternalPage(0); }
+        }
+      />
       </Paper>
     </Box>
   );
